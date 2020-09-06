@@ -1,64 +1,93 @@
-def getNextDirection(roadMap, coord):
-  nextStep = {}
-  for key, value in coord.items():
-    if key == 'width':
-      #print(value+1<maxWidth, roadMap[value+1][coord['height']])
-      if value+1<maxWidth and roadMap[value+1][coord['height']] == 0:
-        # right step coord can not be greater than maximum width.
-        nextStep['down'] = value+1
-        #print(nextStep)
-      else:
-        if value-1>=0 and roadMap[value-1][coord['height']] == 0: # left step coord can not be smaller than zero.
-          nextStep['up'] = value-1
-        #print(nextStep)
-    else:
-      if value+1<maxHeight and roadMap[coord['width']][value+1] == 0: # down step coord can not be greater than maximum height.
-        nextStep['right'] = value+1
-        #print(nextStep)
-      else:
-        if value-1>=0 and roadMap[coord['width']][value-1] == 0: # up step coord can not be smaller than zero.
-          nextStep['left'] = value-1
-        #print(nextStep)
+def solution(prisonLayout):
+  import copy
 
-  return nextStep
+  class mapInfo:
+    def __init__(self):
+      self.floorMap = []
+      self.flipFloorMap = []
+      self.floors = len(prisonLayout)
+      self.doorsAndWalls = len(prisonLayout[0])
+      self.pointsOfDoors = []
 
-def updateNextStep(roadMap, coord):
-  #print(roadMap, coord)
-  direction = getNextDirection(roadMap, coord)
+    def get_flip_layout(self):
+      self.floorMap = copy.copy(prisonLayout)
+      # len(self.floorMap[0]) numbers of doors and walls in a floor.
+      # len(self.floorMap) numbers of floors of the prison.
+      self.flipFloorMap = [[self.floorMap[j][i] for j in range(len(self.floorMap))] for i in range(len(self.floorMap[0]))]
+      return self.flipFloorMap
+
+    def horizontal_search(self, floor):
+      p = []
+      for i in range(len(floor)):
+        if floor[i] == 0:
+          p.append(i)
+      #('floor',floor,'p',p)
+      return p
+
+    def get_doors(self):
+      level=0
+      for floor in self.floorMap:
+        #print(floor)
+        door = self.horizontal_search(floor)
+        location = [[level, door[i]]for i in range(len(door))]
+        self.pointsOfDoors = self.pointsOfDoors+location
+        level+=1
+      return self.pointsOfDoors
+
+    def stair_to_the_end(self):
+      yx = [0, 0]
+      def initWalls():
+        return [0, 0]
+      numberOfWalls = initWalls()
+      for i in range(len(self.floorMap)):
+        if yx[0] == yx[1]:
+          yx[1]+=1
+        elif yx[0]+1 == yx[1]:
+          yx[0]+=1
+        if self.floorMap[yx[0]][yx[1]]==1:
+          numberOfWalls[0]+=1
+        if self.floorMap[yx[1]][yx[0]]==1:
+          numberOfWalls[1]+=1
+      print(numberOfWalls)
+
+    def straight_to_the_end(self):
+      def initWalls():
+        return [0, 0, 0, 0]
+      numberOfWalls = initWalls()
+      for i in range(len(self.floorMap)):
+        if self.floorMap[0][i] == 1:
+          numberOfWalls[0]+=1
+        if self.floorMap[len(self.floorMap)[0]][i] == 1:
+          numberOfWalls[1]+=1
+        if self.floorMap[i][0] == 1:
+          numberOfWalls[2]+=1
+        if self.floorMap[i][len(self.floorMap)] == 1:
+          numberOfWalls[3]+=1
+      print(numberOfWalls)
+
+    def ghost_way(self):
+      # Assume shortest way is m+n-1
+      shortCut = len(self.floorMap)+len(self.floorMap[0])-1
+      destination = [len(self.floorMap)-1, len(self.floorMap[0])-1]
+
+  class point:
+    def __init__(self, x=0, y=0):
+      self.coord = [y, x]
+      self.compass = [[y-1, x], [y+1, x], [y, x-1], [y, x+1]] # up, down, left, right.
   
-  step = direction.values()
-  if direction.keys()[0] in ['up', 'down']:
-    coord['height'] = step[0]
-  if direction.keys()[0] in ['left', 'right']:
-    coord['width'] = step[0]
-  print(coord)
-  recordFootpring(roadMap, coord)
+  breadcrumbs = [[0, 0]]
+  coord = mapInfo()
+  #print('get_doors',coord.get_doors(),coord.get_flip_layout())
+  for yx in coord.get_doors():
+    pathInfo = point(yx[1], yx[0])
+    for surrounding in pathInfo.compass:
+      if surrounding in coord.get_doors() and surrounding not in breadcrumbs:
+        breadcrumbs.append(surrounding)
+    #print(pathInfo.compass)
+    #print('bread',breadcrumbs,'length is',len(breadcrumbs))
+  coord.stair_to_the_end()
+  coord.straight_to_the_end()
 
-def recordFootpring(roadMap, coord):
-  footprintObj = {
-    'width': coord['width'],
-    'height': coord['height']
-  }
-  #if coord not in footprint:
-  footprint.append(footprintObj)
 
-  if coord['width'] == destination['width'] and coord['height'] == destination['height']:
-    print(footprint)
-  else:
-    print(footprint)
-    if len(footprint)<=5:
-      updateNextStep(roadMap, {'width': coord['width'],'height': coord['height']})
-
-def solution(roadMap):
-  global maxWidth, maxHeight, footprint, destination
-
-  footprint = []
-  maxWidth = len(roadMap)
-  maxHeight = len(roadMap[0])
-  destination = {'width': maxWidth-1, 'height': maxHeight-1}
-  coord = {'width':0, 'height':0}
-  recordFootpring(roadMap, coord)
-  return len(footprint)
-
-print(solution([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]]))
-#solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
+#solution([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
+solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])

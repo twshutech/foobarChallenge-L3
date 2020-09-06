@@ -31,15 +31,26 @@ Note that it may also be run against hidden test cases not shown here.
 
 -- Python cases -- 
 ```python
+matrix=[
+[0, 1, 1, 0]  
+[0, 0, 0, 1]  
+[1, 1, 0, 0]  
+[1, 1, 1, 0]]
 Input:
 solution.solution([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
-Output:
-    7
+Output:7
 
+matrix=[
+[0, 0, 0, 0, 0, 0]  
+[1, 1, 1, 1, 1, 0]  
+[0, 0, 0, 0, 0, 0]  
+[0, 1, 1, 1, 1, 1]  
+[0, 1, 1, 1, 1, 1]  
+[0, 0, 0, 0, 0, 0]]
 Input:
 solution.solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
-Output:
-    11
+Output:11
+
 ```
 ```java
 -- Java cases -- 

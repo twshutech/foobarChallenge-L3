@@ -1,20 +1,13 @@
 def solution(prisonLayout):
   import copy
   
-  
   class mapInfo:
     def __init__(self):
-      self.floorMap = []
-      self.flipFloorMap = []
+      self.floorMap = copy.copy(prisonLayout)
+      self.flipFloorMap = [[self.floorMap[j][i] for j in range(len(self.floorMap))] for i in range(len(self.floorMap[0]))]
       self.floors = len(prisonLayout)
       self.doorsAndWalls = len(prisonLayout[0])
       self.pointsOfDoors = []
-      self.tree = [[0, 0]]
-
-    def get_flip_layout(self):
-      self.floorMap = copy.copy(prisonLayout)
-      self.flipFloorMap = [[self.floorMap[j][i] for j in range(len(self.floorMap))] for i in range(len(self.floorMap[0]))]
-      return self.flipFloorMap
 
     def horizontal_search(self, floor):
       p = []
@@ -22,7 +15,7 @@ def solution(prisonLayout):
         if floor[i] == 0:
           p.append(i)
       return p
-
+0 
     def get_doors(self, level=0):
       for floor in self.floorMap:
         #print(floor)
@@ -31,7 +24,7 @@ def solution(prisonLayout):
         location = [[level, door[i]]for i in range(len(door))]
         #if location not in self.pointsOfDoors:
         self.pointsOfDoors = self.pointsOfDoors+location
-        print('self.pointsOfDoors',self.pointsOfDoors)
+        #print('self.pointsOfDoors',self.pointsOfDoors)
         level+=1
       return self.pointsOfDoors
 
@@ -81,8 +74,8 @@ def solution(prisonLayout):
 
   breadcrumbs = [[0, 0]]
   coord = mapInfo()
-
-  print('coord.get_doors()',coord.get_doors(),coord.pointsOfDoors)
+  coord.get_doors()
+  print('coord.get_doors()',set(coord.get_doors()),coord.pointsOfDoors)
   for yx in coord.pointsOfDoors:
     pathInfo = point(yx[1], yx[0])
     for surrounding in pathInfo.compass:

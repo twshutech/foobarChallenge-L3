@@ -1,0 +1,35 @@
+ccessVlan: null
+enable: ""
+fiberEnable: 1
+fiberLinkName: "Disconnected"
+fiberPortStaDuplex: 2
+fiberPortStaSpeed: 8
+fiberPortStaStatus: 2
+fiberPortStatusIcon: null
+fiberStatusValue: 3
+fiberTooptip: "SFP Port 28<br>Trunk: Native VLAN 1<br>Disconnected"
+isComboPort: true
+linkName: "Disconnected"
+mirrorDestinationPort: ""
+mirrorDirection: ""
+name: null
+nativeVlan: 1
+normalEnable: ""
+poe: 2
+poePortPower: undefined
+poePortStatus: undefined
+port: 28
+portChannel: null
+portChannelGroup: null
+portStaDuplex: 1
+portStaErrorState: "00"
+portStaIsUplink: 0
+portStaMediaType: undefined
+portStaSpeed: 1
+portStaStatus: 2
+portStatusIcon: null
+statusValue: 3
+tags: []
+tooptip: "Port 28<br>Trunk: Native VLAN 1<br>Disconnected"
+type: 2
+vlanMode: 2

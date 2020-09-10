@@ -1,17 +1,8 @@
 def solution(mappa_mundi):
-
-  try:
-   import queue
-  except ImportError:
-    import Queue as queue
-
-  queue=queue.Queue()
-
+  import Queue as queue
   breadcrumbs = []
   impassable_walls = []
-  turning_points = []
-  break_points = []
-
+  q = queue.Queue()
   class map_info:
     def __init__(self):
       self.edge_horizontal = len(mappa_mundi[0])
@@ -37,6 +28,7 @@ def solution(mappa_mundi):
   class point_info:
     def __init__(self, y, x):
       self.compass = self.varify_compass_values(y, x)
+      self.available_compass = self.available_turning()
       self.node_value = self.node_of_compass()
       self.coord = [y, x]
 
@@ -52,19 +44,16 @@ def solution(mappa_mundi):
         self.compass.remove([y-1, x])
       return self.compass
 
+    def available_turning(self):
+      return [self.compass[index] for index, node_value in enumerate(self.node_of_compass()) if node_value == 0]
+
     def node_of_compass(self):
       return [mappa_mundi[coord[0]][coord[1]]for coord in self.compass]
-    
-    def point_type(self):
-      if self.node_value.count(0)<2:
-        return
-      else:
-        print('see if wall if turning or breaking', self.node_value)
 
   def now_and_then(coord):
     if coord not in breadcrumbs:
-      queue.put(coord)
       breadcrumbs.append(coord)
+      q.put(coord)
     now_point = point_info(coord[0], coord[1])
 
     for index, next_node in enumerate(now_point.compass):
@@ -77,24 +66,71 @@ def solution(mappa_mundi):
           impassable_walls.append(next_node)
       except IndexError:
         pass
+    
+    print('breadcrumbs',q.queue)
 
-      # if coord == [mapInfo.edge_vertical-1, mapInfo.edge_horizontal-1]:
-      #   print('(╯°Д°)╯ ┻━┻  congrats you have escape D-Link')
-      #   print('Here is the',len(breadcrumbs),'breadcrumbs that you left:', breadcrumbs)
+    return len(breadcrumbs)
 
-  def start():
-    now_and_then([0, 0])
+  def check_near_breakpoint(coord):
     for wall_point in impassable_walls:
       wallInfo = point_info(wall_point[0], wall_point[1])
-      wallInfo.point_type()
+      exist_index = 0
+        # wall_point is [1, 0]
+      if coord in wallInfo.compass:
+        # [1, 0] neihbor
+        return_point = point_info(wall_point[0], wall_point[1])
+        entrance_exist = [item for item in return_point.available_compass if item != coord]
+        for item in breadcrumbs:
+          if item in entrance_exist:
+            exist_index = breadcrumbs.index(item)
+            break
+      if exist_index != 0:
+        break
+      else:
+        return
+    return exist_index
 
-    print('啊Q',list(queue.queue))
-    return len(impassable_walls)
+  def start():
+    list_length = []
+
+    def get_way_out():
+      way_out = []
+      for breadcrumb in breadcrumbs:
+        try:
+          exist_point = check_near_breakpoint(breadcrumb)
+          way_out.append(exist_point)
+        except:
+          pass
+        finally:
+          return way_out
+
+      return way_out
+
+    def trim_path():
+      way_out = get_way_out()
+      new_arr = breadcrumbs[:]
+      if len(way_out) != 0:
+        try:
+          for exist_point in way_out:
+            print('exist_point',exist_point)
+            for i in range(exist_point):
+              if i>0 and i !=0 and i<len(breadcrumbs):
+                new_arr.remove(new_arr[i])
+                print('q.queue[i]',q.queue[i])
+                del q.queue[i]
+        except IndexError:
+          pass
+        finally:
+          print('new_arr',q.queue)
+          list_length.append(len([item for item in new_arr if new_arr.count(item)==1]))
+          return list_length[0]
+
+    if now_and_then([0, 0]) > trim_path():
+      return trim_path()
+    else:
+      return now_and_then([0, 0])
 
   mapInfo = map_info()
-  
   return start()
-
 print(solution([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]]))
 print(solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]]))
-# get 0 doordinates, for map by queue, check compass, add item to queue.

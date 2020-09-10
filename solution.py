@@ -51,8 +51,7 @@ def solution(mappa_mundi):
       return [mappa_mundi[coord[0]][coord[1]]for coord in self.compass]
 
   def now_and_then(coord):
-    if coord not in breadcrumbs:
-      breadcrumbs.append(coord)
+    if coord not in q.queue:
       q.put(coord)
     now_point = point_info(coord[0], coord[1])
 
@@ -60,75 +59,77 @@ def solution(mappa_mundi):
       try:
         if coord == [mapInfo.edge_vertical-1, mapInfo.edge_horizontal-1]:
           break 
-        elif now_point.node_value[index] == 0 and next_node not in breadcrumbs:
+        elif now_point.node_value[index] == 0 and next_node not in q.queue:
           now_and_then(next_node)
         elif now_point.node_value[index] == 1 and next_node not in impassable_walls:
           impassable_walls.append(next_node)
       except IndexError:
         pass
-    
-    print('breadcrumbs',q.queue)
 
-    return len(breadcrumbs)
+    return len(q.queue)
+
+  # def seen_you_before():
+  #   queue_list = []
+  #   for index, item in enumerate(list(q.queue)):
 
   def check_near_breakpoint(coord):
     for wall_point in impassable_walls:
       wallInfo = point_info(wall_point[0], wall_point[1])
-      exist_index = 0
-        # wall_point is [1, 0]
-      if coord in wallInfo.compass:
-        # [1, 0] neihbor
+      exit_index = 0# wall_point is [1, 0]
+      if coord in wallInfo.compass:# [1, 0] neihbor
         return_point = point_info(wall_point[0], wall_point[1])
-        entrance_exist = [item for item in return_point.available_compass if item != coord]
-        for item in breadcrumbs:
-          if item in entrance_exist:
-            exist_index = breadcrumbs.index(item)
-            break
-      if exist_index != 0:
+        entrance_exit = [item for item in return_point.available_compass if 1<len(return_point.available_compass)<3]
+        if len(entrance_exit) == 2:
+          entrance_exit.insert(1, wall_point)
+        exit_index = len(entrance_exit)
+
+      if exit_index != 0:
         break
-      else:
-        return
-    return exist_index
+    return entrance_exit
 
   def start():
-    list_length = []
 
     def get_way_out():
       way_out = []
-      for breadcrumb in breadcrumbs:
-        try:
-          exist_point = check_near_breakpoint(breadcrumb)
-          way_out.append(exist_point)
-        except:
-          pass
-        finally:
-          return way_out
-
-      return way_out
+      try:
+        for index, breadcrumb in enumerate(list(q.queue)):
+          exit_point = check_near_breakpoint(breadcrumb)
+          if len(exit_point) > 0:
+            way_out.append(exit_point)
+      except IndexError: 
+        pass
+      finally:
+        return [tunnel_point for tunnel_point in way_out if way_out.count(tunnel_point)==1]
 
     def trim_path():
+      list_length = []
       way_out = get_way_out()
-      new_arr = breadcrumbs[:]
       if len(way_out) != 0:
-        try:
-          for exist_point in way_out:
-            print('exist_point',exist_point)
-            for i in range(exist_point):
-              if i>0 and i !=0 and i<len(breadcrumbs):
-                new_arr.remove(new_arr[i])
-                print('q.queue[i]',q.queue[i])
-                del q.queue[i]
-        except IndexError:
-          pass
-        finally:
-          print('new_arr',q.queue)
-          list_length.append(len([item for item in new_arr if new_arr.count(item)==1]))
-          return list_length[0]
+        for index_q, from_to in enumerate(way_out):
+          flag = True
+          new_arr = []
+          for index, item in enumerate(list(q.queue)):
+            if item == from_to[0]:
+              new_arr.insert(index,from_to[0])
+              flag = not flag
+            if item == from_to[2]:
+              flag = not flag
+              new_arr.insert(index,from_to[1])
+              new_arr.insert(index,from_to[2])
+            if flag == True:
+              if item not in new_arr:
+                new_arr.append(item)
+          
+          list_length.append(len([bread for bread in new_arr if new_arr.count(bread)==1]))
+          #if len(new_arr) == 11:
+          if index_q+1 == len(way_out):
+            break
+      return list_length[0]
 
-    if now_and_then([0, 0]) > trim_path():
-      return trim_path()
-    else:
+    if now_and_then([0, 0]) == mapInfo.edge_horizontal+mapInfo.edge_vertical-1:
       return now_and_then([0, 0])
+    else:
+      return trim_path()
 
   mapInfo = map_info()
   return start()

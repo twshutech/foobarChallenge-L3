@@ -1,61 +1,66 @@
 from collections import deque
-
-class basic_map_info():
+class basic_map_info:
   def __init__(self, m):
-    self.horizontal_limit = len(m[0])
-    self.vertical_limit = len(m)
+    self.horizontal_limit = len(m[0])-1
+    self.vertical_limit = len(m)-1
+    self.graph = m
 
-def record_current(coord, m):
-  m.popleft()
-  m.appendleft("")
-  return m
+class vertical_neighbor:
+  def __init__(self, coord, map_info):
+    if coord[1] == 0:
+      self.top = None
+    else:
+      self.top = map_info[coord[0]][coord[1]-1]
+    if coord[1] == len(map_info)-1:
+      self.down = None
+    else:
+      self.down = map_info[coord[0]][coord[1]+1]
+    self.up = coord[1]-1
+    self.low = coord[1]+1
+    #print 'c',coord,'map_info',map_info
+
+class horizontal_neighbor:
+  def __init__(self, coord, map_info):
+    if coord[0] == 0:
+      self.left = None
+    else:
+      self.left = map_info.graph[coord[0]-1][coord[1]]
+    if coord[0] == map_info.horizontal_limit:
+      self.right = None
+      print self.right,self.left
+    else:
+      self.rignt = map_info.graph[coord[0]+1][coord[1]]
+      print '12345',map_info.graph[coord[0]+1][coord[1]]
+
+def record_current(coord, map_info, path):
+  path.append(coord)
+  map_info.graph[coord[1]][coord[0]] = None
+  # m.popleft()
+  # m.appendleft("")
+  return map_info.graph
 
 # def move(coord, m):
 #   # move
-
-class vertical_neighbor():
-  def __init__(self, coord, v):
-    if coord[1]-1 >= 0:
-      self.up = v[coord[1]-1]
-    else:
-      self.up = 0
-    if coord[1]+1 <= len(v):
-      self.down = v[coord[1]+1]
-    else:
-      self.down = 0
-
-class horizontal_neighbor():
-  def __init__(self, coord, v):
-    if coord[0]-1 >= 0:
-      self.right = h[coord[1]-1]
-    else:
-      self.right = 0
-    if coord[0]+1 <= len(v):
-      self.left = v[coord[1]+1]
-    else:
-      self.left = 0
-
 def node(coord, m):
-  next_step = None
-  h = horizontal_neighbor(coord, m[coord[1]])
-  v = vertical_neighbor(coord, m[coord[0]])
-  print h.left, h.right,v.up, v.down
-  return [5, 5]
-  # for p in [[coord[0], v.up], [coord[0], v.down], [h.left, coord[1]], [h.right, coord[1]]]:
+  next_step = coord
+  h = horizontal_neighbor(coord, m)
+  v = vertical_neighbor(coord, m.graph)
+  print 'v',v.top,v.down,'h',h.right,h.left
+  # for p in [[coord[0], v.top], [coord[0], v.down], [h.left, coord[1]], [h.right, coord[1]]]:
   #   print p
-    #print m[p[1], p[0]]
-    # if m[p[1], p[0]]:
-    #   next_step = p
-    #   break
-
+  #   print 'm[p[1]][p[0]]',m[p[1]][p[0]]
+  #   if m[p[1]][p[0]]:
+  #     next_step = p
+  #     break
+  return next_step
 
 def solution(m):
-  coord = node([0,0], m)
-  path = deque()
   map_info = basic_map_info(m)
+  coord = node([0,0], map_info)
+  path = deque()
   while coord != [map_info.horizontal_limit, map_info.vertical_limit]:
-    m = record_current(coord, m)
-    coord = node(coord, m)
+    m = record_current(coord, map_info, path)
+    coord = node(coord, map_info).reverse()
 
   # print '   1, 2, 3, 4, 5, 6'
   # for i, row in enumerate(m):

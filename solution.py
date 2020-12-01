@@ -1,71 +1,69 @@
-from collections import deque
-class basic_map_info:
-  def __init__(self, m):
-    self.horizontal_limit = len(m[0])-1
-    self.vertical_limit = len(m)-1
-    self.graph = m
+import queue
+class info:
+  def right_wall(self, l):
+    return len(l[0])-1
+  def bottom_wall(self, l):
+    return len(l)-1
 
-class vertical_neighbor:
-  def __init__(self, coord, map_info):
-    if coord[1] == 0:
-      self.top = None
-    else:
-      self.top = map_info[coord[0]][coord[1]-1]
-    if coord[1] == len(map_info)-1:
-      self.down = None
-    else:
-      self.down = map_info[coord[0]][coord[1]+1]
-    self.up = coord[1]-1
-    self.low = coord[1]+1
-    #print 'c',coord,'map_info',map_info
+def bfs(l, b):
+  information = info()
+  q = queue.Queue()
+  stack = []
+  e = [information.right_wall(l), information.bottom_wall(l)]
+  s = [0, 0]
+  flag = False
+  stack.append(s)
+  print 'ee',e
+  while flag != True:
+    for s in stack:
+      if s == e:
+        flag = True
+      else:
+        del stack[:]
+        if s[1]+1<=e[1]:
+          #print 'xx',l[s[0],s[1]+1]
+          stack.append([s[0],s[1]+1])
+        if s[0] <= e[0]:
+          #print 'xx',l[s[0],s[1]+1]==0
+          stack.append([s[0]+1,s[1]])
+      q.put(s)
+      print 'q',list(q.queue),'stack',stack
 
-class horizontal_neighbor:
-  def __init__(self, coord, map_info):
-    if coord[0] == 0:
-      self.left = None
-    else:
-      self.left = map_info.graph[coord[0]-1][coord[1]]
-    if coord[0] == map_info.horizontal_limit:
-      self.right = None
-      print self.right,self.left
-    else:
-      self.rignt = map_info.graph[coord[0]+1][coord[1]]
-      print '12345',map_info.graph[coord[0]+1][coord[1]]
+def BFS(l, breakable):
+  q = queue.Queue()
+  for i,row in enumerate(l):
+    for j,node in enumerate(l[i]):
+      if node == 0:
+        q.put([i,j])
+  #print q.qsize()
+  return list(q.queue)
 
-def record_current(coord, map_info, path):
-  path.append(coord)
-  map_info.graph[coord[1]][coord[0]] = None
-  # m.popleft()
-  # m.appendleft("")
-  return map_info.graph
+def solution(l):
+  breakable = True
+  print 'l',l
+  return BFS(l,breakable)
 
-# def move(coord, m):
-#   # move
-def node(coord, m):
-  next_step = coord
-  h = horizontal_neighbor(coord, m)
-  v = vertical_neighbor(coord, m.graph)
-  print 'v',v.top,v.down,'h',h.right,h.left
-  # for p in [[coord[0], v.top], [coord[0], v.down], [h.left, coord[1]], [h.right, coord[1]]]:
-  #   print p
-  #   print 'm[p[1]][p[0]]',m[p[1]][p[0]]
-  #   if m[p[1]][p[0]]:
-  #     next_step = p
-  #     break
-  return next_step
+def reverse_solution(l):
+  breakable = True
+  l.sort(reverse=True)
+  for row in l:
+    row.sort(reverse=False)
+  print 'l',l
+  return BFS(l,breakable)
 
-def solution(m):
-  map_info = basic_map_info(m)
-  coord = node([0,0], map_info)
-  path = deque()
-  while coord != [map_info.horizontal_limit, map_info.vertical_limit]:
-    m = record_current(coord, map_info, path)
-    coord = node(coord, map_info).reverse()
+if __name__ == '__main__':
+  l = [[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]]
+  # way_go_path = solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
+  # way_back_path = reverse_solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
+  # print 'go', way_go_path
+  # print 'back', way_back_path
+  bfs(l, True)
 
-  # print '   1, 2, 3, 4, 5, 6'
-  # for i, row in enumerate(m):
-  #   print i+1, row
+
+  #print answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
+  #solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
+  # print(solution([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]]))
+  # print(solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]]))
+  # print(reverse_solution([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]]))
+  # print(reverse_solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]]))
   
-solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
-# print(solution([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]]))
-# print(solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]]))

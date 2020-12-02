@@ -1,16 +1,35 @@
 import queue
-from collections import defaultdict
+from collections import defaultdict, deque
+# from binarytree import build
 class info:
   def right_wall(self, l):
-    return len(l[0])
+    return len(l[0])-1
   def bottom_wall(self, l):
-    return len(l)
+    return len(l)-1
 
-def bfs(l, b, el):
-  blocked_node_neibhor = defaultdict()
+class get_children_nodes:
+  route = ([0,1],[1,0])
+  def coming_node(coord):
+    for x in route:
+      yield zip(coord, x)
+
+def next_node(parent, map_info):
+  cQ = queue.Queue()
+  node_children = get_children_nodes()
+  yield node_children
+  # for node in node_children:
+  #   print 'node',node
+  #   cQ.put(node)
+  # yield cQ
+
+def bfs(l, b):
   reversed_l = l.sort(reverse=True)
+
   information = info()
   q = queue.Queue()
+  dQ = deque()
+
+  parents_nodes = deque()
   children_nodes = []
   available_node = []
   blocked_node = []
@@ -18,54 +37,35 @@ def bfs(l, b, el):
   # print 'end point',e,l
   s = [0, 0]
   flag = False
-  children_nodes.append(s)
-  # print 'ee',e
-  while flag != True:
-    if len(children_nodes)>0:
-      print 'children_nodes',children_nodes
-    # for i,s in enumerate(children_nodes):
-    while len(children_nodes) > 0:
-      s = children_nodes.pop()
-      # print 's',s
-      if s == e:
-        flag = True
-      else:
-        # for i,x_then_y in enumerate(s):
-        #   print 'x_then_y',x_then_y,i
+  parents_nodes.append(s)
+  cQ = next_node(s, information)
+  for node in cQ:
+    print 'node',node
 
-        next_column = s[0] + 1
-        next_row = s[1] + 1
-        print s,'from',((next_column,s[1]), (s[0],next_row))
-        # if len(children_nodes)>0 and i == 0:
-        #   del children_nodes[:]
-        if next_row < e[1]:
-          if l[s[0]][next_row]:
-            blocked_node.append([s[0],next_row])
-            # if blocked_node_neibhor[','.join(str(n) for n in s)]:
-            #   blocked_node_neibhor[','.join(str(n) for n in s)].append(','.join([s[0],next_row]))
-            # else:
-            #   blocked_node_neibhor[','.join(str(n) for n in s)] = [','.join([s[0],next_row])]
-          else:
-            available_node.append([s[0],next_row])
-          children_nodes.append([s[0],next_row])
-        if next_column < e[0]:
-          if l[next_column][s[1]]:
-            blocked_node.append([next_column,s[1]])
-            # if blocked_node_neibhor[','.join(str(n) for n in s)]:
-            #   blocked_node_neibhor[','.join(str(n) for n in s)].append(','.join([next_column,s[1]]))
-            # else:
-            #   blocked_node_neibhor[','.join(str(n) for n in s)] = [','.join([next_column,s[1]])]
-          else:
-            available_node.append([next_column,s[1]])
-          children_nodes.append([next_column,s[1]])
-        # print 'children_nodes',children_nodes
-        # print 'blocked_node',blocked_node
-        # print 'available_node',available_node
-      q.put(s)
-      # print 'q',list(q.queue),s
+  while len(list(parents_nodes)) > 0:
+    s = parents_nodes.pop()
 
-def wall_to_exit(w, l):
-  print '~~~w',w,'l',l
+    if s == e: # Found the exit.
+      flag = False
+    else:
+      next_column = s[0] + 1
+      next_row = s[1] + 1
+      if next_row < e[1]:
+        if l[s[0]][next_row]:
+          blocked_node.append([s[0],next_row])
+        else:
+          available_node.append([s[0],next_row])
+        children_nodes.append([s[0],next_row])
+      if next_column < e[0]:
+        if l[next_column][s[1]]:
+          blocked_node.append([next_column,s[1]])
+        else:
+          available_node.append([next_column,s[1]])
+        children_nodes.append([next_column,s[1]])
+      for child in children_nodes:
+        parents_nodes.append(child)
+        print 'parents_nodes',len(parents_nodes), child,parents_nodes
+      del children_nodes[:]
 
 def BFS(l, breakable):
   q = queue.Queue()
@@ -90,19 +90,13 @@ def reverse_solution(l):
   return BFS(l,breakable)
 
 if __name__ == '__main__':
+  to_null = lambda a:'X'
   empty_l = []
   l = [[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]]
   for row in l:
-    empty_l.append(['_' for i in range(len(row))])
-    print row
-  for initNode in empty_l:
-    print initNode
-  # way_go_path = solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
-  # way_back_path = reverse_solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
-  # print 'go', way_go_path
-  # print 'back', way_back_path
-  bfs(l, True, empty_l)
-
+    empty_l.append(map(to_null, row))
+  print 'empty_l',empty_l
+  #bfs(l, True)
 
   #print answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
   #solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])

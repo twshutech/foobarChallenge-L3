@@ -1,42 +1,50 @@
 # the bombs self-replicate via one of two distinct processes:
 # Every Mach bomb retrieves a sync unit from a Facula bomb; for every Mach bomb, a Facula bomb is created;
 # Every Facula bomb spontaneously creates a Mach bomb.
+print divmod(2, 1)
+
 def first_process(m, f):
   return [(m+f, f), (m, m+f)]
 
-def second_process(digit, del_digit):
-  return divmod(digit, del_digit)
+def second_process(n, delta_n):
+  n = int(n)
+  delta_n = int(delta_n)
 
-def third_process(m, f):
+  print n,delta_n
+  return divmod(n, delta_n)
+
+def is_this_fibonacci(m,f):
   message = {
     'count': 0,
-    'solution': ''
+    'solution': '',
+    'mf': tuple()
   }
-  m = int(m)
-  f = int(f)
-  processes = first_process(m,f)
+  processes = first_process(int(m), int(f))
+  for bomb_set in processes:
+    while message['mf'] != (1,1) or message['solution'] != "impossible":
+      result = second_process(*bomb_set)
+      message['count'] += result[0]
+      bomb_set = (result[1], bomb_set[1])
+      message['mf'] = bomb_set
+      print 'result',result,'bomb_set',bomb_set,cmp(*message['mf'])
 
-  while len(processes) > 0:
-    bomb_set = processes.pop()
-    if cmp(*bomb_set) == 0:
-      message['solution'] = "impossible"
-      break
-    elif cmp(*bomb_set) == -1:
-      bomb_set = bomb_set[::-1]
-    result = second_process(*bomb_set)
-    message['count'] = result[0]
-    while result[0] != 1 or f != 
+      if cmp(*message['mf']) == 0:
+        message['solution'] = "impossible"
+      elif cmp(*message['mf']) == -1:
+        bomb_set = bomb_set[::-1]
+
+      if message['mf'] == (1,1) or message['solution'] == "impossible":
+        break
   return message
 
 def solution(m,f):
-  answer = third_process(m, f)
-  if isinstance(answer, int):
-     answer = str(answer)
+  answer = is_this_fibonacci(m, f)
+  if isinstance(answer['count'], int):
+     answer = str(answer['count'])
   return answer
 
-
-print "('2', '1')",solution('2', '1')
-print "('2', '4')",solution('2', '4')
-print "('7', '4')",solution('4', '7')
-print "('2', '2')",solution('2', '2')
-print "('2', '1')",solution('149333','12')
+print "('2', '1')",solution('2', '1'),"\n"
+print "('2', '4')",solution('2', '4'),"\n"
+print "('4', '7')",solution('4', '7'),"\n"
+print "('2', '2')",solution('2', '2'),"\n"
+print "('149333', '12')",solution('149333','12')

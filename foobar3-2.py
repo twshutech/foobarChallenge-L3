@@ -1,26 +1,20 @@
 # the bombs self-replicate via one of two distinct processes:
 # Every Mach bomb retrieves a sync unit from a Facula bomb; for every Mach bomb, a Facula bomb is created;
 # Every Facula bomb spontaneously creates a Mach bomb.
-def check_numbers_retrieves(ns,steps=0):
-  solu = dict({'ns':ns, 'steps':steps, 'valid':False})
-
+def check_numbers_retrieves(solu,steps=0):
+  ns = solu['ns'][-1]
+  print 'ns',ns
   modified_bomb = rest_bombs(max(ns), min(ns))
   steps += delta_steps(max(ns), min(ns))
-  # if modified_bomb != 0:
-  #   ns = (modified_bomb, min(ns))[::-1]
-  # else:
-  #   modified_bomb += min(ns)
-  #   steps -= 1
-  #   ns = (modified_bomb, min(ns))
-  solu['ns'] = (modified_bomb, min(ns))[::-1]
+
+  solu['ns'].append((modified_bomb, min(ns))[::-1])
   solu['steps'] = steps
-  print 'solu',solu,'ns'
-  if is_solution(solu['ns']) == False and modified_bomb == 0:
+  if is_solution(solu['ns'][-1]) == False and modified_bomb == 0:
     modified_bomb = min(ns)
     steps-=1
     return solu
   else:
-    return check_numbers_retrieves(solu['ns'], steps)
+    return check_numbers_retrieves(solu, steps)
 
 def first_process(m, f):
   return [(m+f, f), (m, m+f)]
@@ -70,12 +64,15 @@ def solution(m,f):
   descending = lambda a: sorted(a, reverse=True)
   depth = []
   compare_list = []
-  processes = first_process(int(m), int(f))
+  from_n = int(m) + int(f)
+  processes = [(from_n, int(m)), (from_n, int(f))]
+  print 'processes',processes
   for bomb_set in processes:
     steps = 0
     #depth.append(is_this_fibonacci(bomb_set))
     mf = descending(bomb_set)
-    print 'RESULT',check_numbers_retrieves(mf, steps),'mf',mf
+    solu = dict({'ns':[mf], 'steps':steps, 'valid':False})
+    print 'RESULT',check_numbers_retrieves(solu, steps),'mf',mf
 
     # mf = result['ns']
 
@@ -85,7 +82,7 @@ def solution(m,f):
     # while mf['ns'] != (1,1) or f:
   return depth
 
-print "('2', '1'):\n",solution('2', '1'),"\n"
+solution('2', '1')
 # print "('2', '4'):\n",solution('2', '4'),"\n"
 # print "('4', '7'):\n",solution('4', '7'),"\n"
 # print "('2', '2'):\n",solution('2', '2'),"\n"
